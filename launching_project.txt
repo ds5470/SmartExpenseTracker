@@ -1,0 +1,72 @@
+Step 1: Start the MySQL Server
+On macOS, the MySQL server often stops when you shut down. You must ensure it is running before your Python code can talk to it.
+
+Open System Settings on your Mac.
+
+Scroll to the bottom and click on the MySQL icon.
+
+If it says "Stopped," click Start MySQL Server.
+
+Alternatively, use the terminal:
+brew services start mysql
+
+
+Step 2: Prepare your Project Environment
+Open your SmartExpenseTracker folder in VS Code and initialize your virtual "bubble".
+
+Open the Terminal in VS Code (Ctrl + ` ).
+
+Activate the Virtual Environment:
+
+Bash
+
+source venv/bin/activate
+You should see (venv) appear in your prompt.
+
+Confirm the Python Interpreter: Look at the bottom right of VS Code. It should say Python 3.10.2 ('venv': venv). If not, press Cmd + Shift + P and select it again.
+
+Step 3: Verify the Database Connection
+Before running the AI pipeline, make sure your database is ready and you are using the right one.
+
+Log into the MySQL prompt:
+
+Bash
+
+mysql -u root -p
+Once inside, switch to your project database:
+
+SQL
+
+USE my_expense_tracker;
+Check your existing entries to make sure everything is still there:
+
+SQL
+
+SELECT * FROM expenses ORDER BY id DESC LIMIT 3;
+Type exit to return to your normal Mac terminal
+
+
+Step 4: Run the Master Pipeline
+Now you are ready to process a new receipt. Just follow this standard "Input → Process" workflow.
+
+Drop your new receipt image (e.g., lunch.png) into the SmartExpenseTracker folder.
+
+Run the Main Script:
+
+Bash
+
+python3 main.py lunch.png
+Step 5: Verify the Cloud and Local Results
+After the script finishes, do a quick "Sanity Check":
+
+Cloud: Check the AWS S3 Console to ensure the file was uploaded.
+
+Database: Use the Database Client extension in VS Code to see the new row added to the expenses table
+
+
+
+
+
+
+
+
