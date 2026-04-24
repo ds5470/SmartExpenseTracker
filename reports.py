@@ -23,9 +23,9 @@ def get_total_by_vendor(vendor_name):
     cursor = conn.cursor()
 
     # SQL logic to sum all expenses for a specific store
-    query = "SELECT category, SUM(amount) AS total_amount FROM expenses WHERE transaction_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) GROUP BY category; %s"
+    query = "SELECT category, SUM(amount) AS total_amount FROM expenses WHERE transaction_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) GROUP BY category;"
 
-    cursor.execute(query, (f"%{vendor_name}%",))
+    cursor.execute(query)
     
     result = cursor.fetchall()
     

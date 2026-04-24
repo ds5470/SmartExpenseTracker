@@ -22,7 +22,7 @@ def run_pipeline(local_file_path):
     category = get_category_from_llm(vendor, total)
 
     # parse JSON
-    category = get_category_from_llm()
+    # category = get_category_from_llm()
 
 
     # Step 3: Save to MySQL
