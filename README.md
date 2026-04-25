@@ -53,6 +53,7 @@ Receipt Image → AWS S3 → AWS Textract → Python Processing → MySQL → Ta
 
 ## 📸 Screenshots
 
+<img width="2700" height="1704" alt="image" src="https://github.com/user-attachments/assets/1698ce89-96e9-44a3-a621-fc2066813356" />
 
 
 ---
