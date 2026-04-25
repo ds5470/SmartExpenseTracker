@@ -29,14 +29,31 @@ def extract_receipt_data(bucket_name, file_name):
 
                 # Only print the big 3 for now
                 if field_type in ['VENDOR_NAME', 'TOTAL', 'INVOICE_RECEIPT_DATE']:
-                    print(f"✅ {field_type}: {value} ({confidence:.2f}% confidence)")
+                    print(f"{field_type}: {value} ({confidence:.2f}% confidence)")
 
     except Exception as e:
         print(f"❌ Error during AI analysis: {e}")
 
 # --- TEST IT ---
 MY_BUCKET = "my-personal-receipts-2026"
-MY_FILE = "starbucks_receipt.png" # The name of the file already in S3
+# MY_FILE = "starbucks_receipt.png" # The name of the file already in S3
+
+def analyze_all_receipts():
+    folder_path = '/Users/dewansharma/Documents/SmartExpenseTracker/receipts'
+    folder_len = os.listdir(folder_path)
+    # print(folder_len)
+
+    for i in range(1, 5):
+        try:
+            MY_FILE = "r" + str(i) + '.png'
+            # print(MY_FILE)
+            extract_receipt_data(MY_BUCKET, MY_FILE)
+            print("✅ Image analyzed : r" + str(i) + ".png sucessfully")
+            print()
+        except Exception:
+            print("❌ Error occured")
+    print("✅ Analyzed all receipts sucessfully")
 
 if __name__ == "__main__":
-    extract_receipt_data(MY_BUCKET, MY_FILE)
+    # extract_receipt_data(MY_BUCKET, MY_FILE)
+    analyze_all_receipts()
