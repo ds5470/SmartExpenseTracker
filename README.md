@@ -69,4 +69,4 @@ Receipt Image → AWS S3 → AWS Textract → Python Processing → MySQL → Ta
 
 ## 📌 Author
 
-Your Name
+Dewansh Sharma
