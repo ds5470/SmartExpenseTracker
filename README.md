@@ -52,8 +52,11 @@ Receipt Image → AWS S3 → AWS Textract → Python Processing → MySQL → Ta
 ---
 
 ## Screenshots
-
+Dashboard:
 <img width="2700" height="1704" alt="image" src="https://github.com/user-attachments/assets/b6904d06-bc3c-4f66-81bb-bf8515f115c1" />
+
+Table in Database:
+<img width="985" height="547" alt="expenses_table" src="https://github.com/user-attachments/assets/0c73c229-29a8-46a6-b45f-91098ab5060f" />
 
 
 ---
