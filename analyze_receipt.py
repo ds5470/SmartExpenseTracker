@@ -47,10 +47,10 @@ MY_BUCKET = "my-personal-receipts-2026"
 
 def analyze_all_receipts():
     folder_path = '/Users/dewansharma/Documents/SmartExpenseTracker/receipts'
-    folder_len = os.listdir(folder_path)
+    folder_list = os.listdir(folder_path)
     # print(folder_len)
 
-    for i in range(1, 5):
+    for i in range(1, len(folder_list) + 2):
         try:
             MY_FILE = "r" + str(i) + '.png'
             # print(MY_FILE)

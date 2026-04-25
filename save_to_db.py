@@ -8,12 +8,13 @@ from llm_processor import get_category_from_llm
 from dateutil import parser
 import re
 
-
-
+GREEN = "\033[92m"
+RESET = "\033[0m"
 
 load_dotenv()
 skipped = 0
 inserted = 0
+processed = 0
 
 s3 = boto3.client(
     "s3",
@@ -31,20 +32,11 @@ response = s3.list_objects_v2(Bucket=bucket_name)
 count = len(response.get("Contents", []))
 
 print("Number of objects:", count)
+print("--------------------------------------------------------------------------")
+print()
+print()
+print()
 
-
-# for i in range(1, count):
-#     file_name = "r" + str(i) + '.png'
-#     data = extract_receipt_data(bucket_name, file_name)
-
-#     if not data:
-#             continue
-    
-#     vendor = next((f["value"] for f in data if f["type"] == "VENDOR_NAME"), None)
-#     total = next((f["value"] for f in data if f["type"] == "TOTAL"), None)
-#     date = next((f["value"] for f in data if f["type"] == "INVOICE_RECEIPT_DATE"), None)
-#     vendor_conf = next((f["confidence"] for f in data if f["type"] == "VENDOR_NAME"), None)    
-#     save_expense_to_db(vendor, date, total, "Unknown", vendor_conf)
 
 
 def save_expense_to_db(vendor, date, total, category, confidence):
@@ -73,6 +65,13 @@ def save_expense_to_db(vendor, date, total, category, confidence):
         conn.commit()
 
         print(f"🚀 Record inserted successfully! ID: {cursor.lastrowid}")
+        print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
+        print(f"{GREEN}**************************************************************************{RESET}")
+        print()
+        print()
+        print()
+
+        
 
 
     except mysql.connector.Error as err:
@@ -82,24 +81,41 @@ def save_expense_to_db(vendor, date, total, category, confidence):
             cursor.close()
             conn.close()
 
-for i in range(1, count):
-    file_name = "r" + str(i) + '.png'
-    data = extract_receipt_data(bucket_name, file_name)
 
+
+# Check on all the files
+for obj in response.get("Contents", []):
+    file_name = obj["Key"]
+    print("")
+    print(f"{GREEN}**************************************************************************{RESET}")
+
+    data = extract_receipt_data(bucket_name, file_name)
+    
+    
+    print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
+    print(f"📄 Processing: {file_name}")
+    processed += 1
+    
+
+
+    
     if not data:
-            print("❌ No data")
+            print("❌ Skipped: No Textract data")
+            print()
+            print()
+            skipped += 1
             continue
     
-    vendor = data.get("VENDOR_NAME", {}).get("value")
-    if not vendor or vendor == "0" or len(vendor.strip()) < 2:
-        print(f"❌ Bad vendor for {file_name}")
-        vendor = "Unknown"
-
-    vendor = " ".join(vendor.split())   # fixes weird spacing like "H ULTA BEAUT Y"
-    vendor = vendor.replace("®", "")
-    vendor = vendor.strip().title() 
     
-    total = data.get("TOTAL", {}).get("value")
+    total = (
+        data.get("TOTAL", {}).get("value") or
+        data.get("DEBIT_CARD", {}).get("value") or
+        data.get("AMOUNT_PAID", {}).get("value") or
+        data.get("SUBTOTAL", {}).get("value")
+    )
+    # print("🔍 Extracted fields:", data)
+
+
     if total:
         total = float(re.sub(r'[^\d.]', '', total))
     
@@ -110,24 +126,41 @@ for i in range(1, count):
         date = parser.parse(date).strftime('%Y-%m-%d')
     else:
         date = "1970-01-01"   # or continue if you prefer
+
+
+    vendor = data.get("VENDOR_NAME", {}).get("value")
+    if not vendor or vendor == "0" or len(vendor.strip()) < 2:
+        print(f"❌ Bad vendor for {file_name}, ⚠️ Vendor issue → using 'Unknown'")
+        vendor = "Unknown"
+
+    if not total:
+        print("❌ Skipped: Missing TOTAL")
+        skipped += 1
+        continue
+
+    if not date:
+        print("❌ Skipped: Missing DATE")
+        skipped += 1
+        continue
+
+    vendor = " ".join(vendor.split())   # fixes weird spacing like "H ULTA BEAUT Y"
+    vendor = vendor.replace("®", "")
+    vendor = vendor.strip().title() 
+    
+    
     
     vendor_conf = data.get("VENDOR_NAME", {}).get("confidence")
 
-
-    if not vendor or not total:
-        continue
     category = get_category_from_llm(vendor, total)    
 
-
-    if not data or not vendor or not total or not date:
-        skipped += 1
-        continue
     inserted += 1
 
     save_expense_to_db(vendor, date, total, category, vendor_conf)
 
-    
+
+print()
 print(f"✅ Inserted: {inserted}")
+print()
 print(f"⚠️ Skipped: {skipped}")
 
 # --- TEST IT ---

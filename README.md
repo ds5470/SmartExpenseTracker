@@ -1,64 +1,71 @@
-AI-Powered Smart Expense Tracker
-A modular Python-based pipeline that automates the transition from physical receipts to structured database records using AWS Cloud AI and MySQL.
+# 💰 AI-Powered Expense Tracker
 
-🚀 Features
-Automated Cloud Upload: Programmatically handles receipt storage in Amazon S3.
+An end-to-end intelligent expense tracking system that extracts data from receipts using AWS Textract, processes it with Python, and visualizes insights using Tableau.
 
-Intelligent Extraction: Leverages AWS Textract (AnalyzeExpense API) to perform OCR and entity extraction for vendor names, dates, and totals.
+---
 
-Data Sanitization: Cleans raw AI text (e.g., stripping '$' and formatting dates) into SQL-compatible formats using Python.
+## 🚀 Features
 
-Relational Storage: Stores normalized financial records in a MySQL database for long-term tracking.
+* 📄 Automated receipt data extraction using AWS Textract (Expense API)
+* 🧠 Intelligent expense categorization using LLM
+* ☁️ Cloud storage using AWS S3
+* 🗄️ Structured storage in MySQL database
+* 📊 Interactive Tableau dashboard for insights
+* 🌙 Dark-theme visualization for better UX
 
-🛠 Tech Stack
-Language: Python 3.10+
+---
 
-Cloud: AWS (S3, Textract, IAM)
+## 🏗️ Architecture
 
-Database: MySQL
+Receipt Image → AWS S3 → AWS Textract → Python Processing → MySQL → Tableau Dashboard
 
-Libraries: boto3, mysql-connector-python, python-dotenv, python-dateutil
+---
 
-📋 Setup & Launch Instructions
-1. Environment Configuration
-Create a .env file in the root directory and populate it with your credentials:
+## 🛠️ Tech Stack
 
-Code snippet
+* **Backend:** Python, Boto3
+* **Cloud:** AWS S3, AWS Textract
+* **Database:** MySQL
+* **AI/NLP:** LLM-based categorization
+* **Visualization:** Tableau
 
-AWS_ACCESS_KEY=your_access_key
-AWS_SECRET_KEY=your_secret_key
-AWS_REGION=us-east-1
-DB_PASSWORD=your_mysql_password
-2. Database Initialization
-Ensure your MySQL server is running and create the table:
-/usr/local/mysql/bin/mysql -u root -p
+---
 
-SQL
+## 📊 Dashboard Insights
 
-CREATE DATABASE my_expense_tracker;
-USE my_expense_tracker;
+* Spending by category
+* Monthly spending trends
+* Top merchants analysis
+* Interactive filters and drill-down
 
-CREATE TABLE expenses (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    transaction_date DATE NOT NULL,
-    store_name VARCHAR(100) NOT NULL,
-    amount DECIMAL(10, 2) NOT NULL,
-    confidence_score FLOAT
-    category VARCHAR(50),
-    summary TEXT
-);
-3. Running the Pipeline
-Activate your virtual environment and run the master script with your receipt image:
+---
 
-Bash
+## ⚙️ How It Works
 
-source venv/bin/activate
-python3 main.py <your_receipt_image.jpg>
-🏗 Project Structure
-main.py: The orchestrator script managing the end-to-end flow.
+1. Upload receipt images to AWS S3
+2. Textract extracts structured expense data
+3. Python processes and cleans data
+4. LLM categorizes transactions
+5. Data stored in MySQL
+6. Tableau visualizes insights
 
-upload_receipt.py: Handles AWS S3 communication.
+---
 
-clean_and_analyze.py: Processes AWS Textract responses and sanitizes data.
+## 📸 Screenshots
 
-save_to_db.py: Manages MySQL connection and data insertion.
+
+
+---
+
+## 🔥 Future Improvements
+
+* Real-time expense tracking UI
+* Mobile app integration
+* Budget prediction using ML
+* Expense anomaly detection
+
+---
+
+## 📌 Author
+
+Dewansh Sharma

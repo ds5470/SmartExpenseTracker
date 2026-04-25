@@ -33,10 +33,11 @@ MY_BUCKET = "my-personal-receipts-2026"
 # TEST_IMAGE = '/Users/dewansharma/Documents/SmartExpenseTracker/receipts/r1.png'
 def upload_all_receipts():
     folder_path = '/Users/dewansharma/Documents/SmartExpenseTracker/receipts'
-    folder_len = os.listdir(folder_path)
-    # print(folder_len)
+    folder_list = os.listdir(folder_path)
+    folder_list.sort()
+    print(folder_list)
 
-    for i in range(1,len(folder_len)):
+    for i in range(1,len(folder_list) + 2):
         try:
             TEST_IMAGE = "/Users/dewansharma/Documents/SmartExpenseTracker/receipts/r" + str(i) + '.png'
             print(TEST_IMAGE)
