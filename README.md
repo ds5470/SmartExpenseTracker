@@ -31,6 +31,7 @@ AWS_REGION=us-east-1
 DB_PASSWORD=your_mysql_password
 2. Database Initialization
 Ensure your MySQL server is running and create the table:
+/usr/local/mysql/bin/mysql -u root -p
 
 SQL
 

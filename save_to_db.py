@@ -1,8 +1,51 @@
+from datetime import datetime
 import os
+import boto3
 import mysql.connector 
 from dotenv import load_dotenv
+from analyze_receipt import extract_receipt_data
+from llm_processor import get_category_from_llm
+from dateutil import parser
+import re
+
+
+
 
 load_dotenv()
+skipped = 0
+inserted = 0
+
+s3 = boto3.client(
+    "s3",
+    aws_access_key_id=os.getenv("AWS_ACCESS_KEY"),
+    aws_secret_access_key=os.getenv("AWS_SECRET_KEY"),
+    region_name=os.getenv("AWS_REGION")
+)
+
+# file_name = "r1.png"
+
+bucket_name = "my-personal-receipts-2026"
+
+response = s3.list_objects_v2(Bucket=bucket_name)
+
+count = len(response.get("Contents", []))
+
+print("Number of objects:", count)
+
+
+# for i in range(1, count):
+#     file_name = "r" + str(i) + '.png'
+#     data = extract_receipt_data(bucket_name, file_name)
+
+#     if not data:
+#             continue
+    
+#     vendor = next((f["value"] for f in data if f["type"] == "VENDOR_NAME"), None)
+#     total = next((f["value"] for f in data if f["type"] == "TOTAL"), None)
+#     date = next((f["value"] for f in data if f["type"] == "INVOICE_RECEIPT_DATE"), None)
+#     vendor_conf = next((f["confidence"] for f in data if f["type"] == "VENDOR_NAME"), None)    
+#     save_expense_to_db(vendor, date, total, "Unknown", vendor_conf)
+
 
 def save_expense_to_db(vendor, date, total, category, confidence):
     try:
@@ -39,10 +82,55 @@ def save_expense_to_db(vendor, date, total, category, confidence):
             cursor.close()
             conn.close()
 
+for i in range(1, count):
+    file_name = "r" + str(i) + '.png'
+    data = extract_receipt_data(bucket_name, file_name)
+
+    if not data:
+            print("❌ No data")
+            continue
+    
+    vendor = data.get("VENDOR_NAME", {}).get("value")
+    if not vendor or vendor == "0" or len(vendor.strip()) < 2:
+        print(f"❌ Bad vendor for {file_name}")
+        vendor = "Unknown"
+
+    vendor = " ".join(vendor.split())   # fixes weird spacing like "H ULTA BEAUT Y"
+    vendor = vendor.replace("®", "")
+    vendor = vendor.strip().title() 
+    
+    total = data.get("TOTAL", {}).get("value")
+    if total:
+        total = float(re.sub(r'[^\d.]', '', total))
+    
+    date = data.get("INVOICE_RECEIPT_DATE", {}).get("value")
+    if date:
+        import re
+        date = re.sub(r'\.', '', date)   # remove "OCT."
+        date = parser.parse(date).strftime('%Y-%m-%d')
+    else:
+        date = "1970-01-01"   # or continue if you prefer
+    
+    vendor_conf = data.get("VENDOR_NAME", {}).get("confidence")
 
 
+    if not vendor or not total:
+        continue
+    category = get_category_from_llm(vendor, total)    
+
+
+    if not data or not vendor or not total or not date:
+        skipped += 1
+        continue
+    inserted += 1
+
+    save_expense_to_db(vendor, date, total, category, vendor_conf)
+
+    
+print(f"✅ Inserted: {inserted}")
+print(f"⚠️ Skipped: {skipped}")
 
 # --- TEST IT ---
 # if __name__ == "__main__":
-#     # Example clean data (use the output from your previous script)
-#     save_expense_to_db("STARBUCKS COFFEE", "2023-10-26", 21.41, 99.8)
+    # Example clean data (use the output from your previous script)
+    # save_expense_to_db(vendor, date, total, vendor_conf)

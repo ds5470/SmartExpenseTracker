@@ -13,6 +13,7 @@ def extract_receipt_data(bucket_name, file_name):
         region_name=os.getenv('AWS_REGION')
     )
 
+    results = {}
     try:
         # Call the specialized Expense API 
         response = client.analyze_expense(
@@ -30,9 +31,15 @@ def extract_receipt_data(bucket_name, file_name):
                 # Only print the big 3 for now
                 if field_type in ['VENDOR_NAME', 'TOTAL', 'INVOICE_RECEIPT_DATE']:
                     print(f"{field_type}: {value} ({confidence:.2f}% confidence)")
+                    results[field_type] = {
+                        "value": value,
+                        "confidence": confidence
+                    }
+            return results
 
     except Exception as e:
         print(f"❌ Error during AI analysis: {e}")
+        return []
 
 # --- TEST IT ---
 MY_BUCKET = "my-personal-receipts-2026"
